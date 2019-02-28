@@ -116,9 +116,6 @@ class NaiveBayes:
                     float(self.cat_infos[cat_index][2]) + self.alpha
 
                 # Store the probability
-                # 'bat 'to nag-zezero
-                # LECHE yoko na
-                # Puta log pala sagot
                 likelihood_prob[cat_index] += np.log(token_prob)
 
         # Calculate for the posterior probability
