@@ -6,7 +6,7 @@ from preprocess import data_preprocess
 
 
 class NaiveBayes:
-    def __init__(self, classes, alpha):
+    def __init__(self, classes, alpha, word_freq=3):
         """Constructor takes in the number of classes of the training set
 
         classes is the number of classes in the training set ie Yes/No
@@ -17,6 +17,7 @@ class NaiveBayes:
         self.bow_dicts = np.array([defaultdict(lambda:0)
                                    for index in range(self.classes.shape[0])])
         self.alpha = alpha
+        self.word_freq = word_freq
 
     def add_to_BoW(self, text, bow_number):
         """Accepts a preprocessed string that
@@ -31,6 +32,13 @@ class NaiveBayes:
 
         for token in text.split():
             self.bow_dicts[bow_number][token] += 1
+
+    def reduce_words(self):
+        print('----- Removing words with frequencies less than {} -----'.format(self.word_freq))
+        for cat_index, _ in enumerate(self.classes):
+            self.bow_dicts[cat_index] = {
+                word: count for word, count
+                in self.bow_dicts[cat_index].items() if count >= self.word_freq}
 
     def train(self, dataset, labels):
         """Accepts a dataset with the shape (l x d)
@@ -62,6 +70,7 @@ class NaiveBayes:
             # construct the BoW for that category
             np.apply_along_axis(self.add_to_BoW, 1, cleaned_data, cat_index)
 
+        self.reduce_words()
         prob_classes = np.empty(self.classes.shape[0])
         all_words = []
         cat_word_counts = np.empty(self.classes.shape[0])
@@ -75,8 +84,7 @@ class NaiveBayes:
             # count = list(self.bow_dicts[cat_index].values())
             # removed +1
             cat_word_counts[cat_index] = np.sum(
-                np.array(list(self.bow_dicts[cat_index].values())))
-            + self.alpha
+                np.array(list(self.bow_dicts[cat_index].values()))) + self.alpha
 
             # Get all words for this category
             all_words += self.bow_dicts[cat_index].keys()
