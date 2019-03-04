@@ -12,26 +12,27 @@ datafile = 'vocab.csv'
 
 def main(argv):
     alpha = 0
-    word_freq = 0
+    vocab_count_class = 0
     try:
-        opts, _ = getopt.getopt(argv, 'ha:w:', ["alpha=", "word_freq="])
+        opts, _ = getopt.getopt(
+            argv, 'ha:w:', ["alpha=", "vocab_count_class="])
     except getopt.GetoptError:
         print('Invalid argument')
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == '-h':
-            print('driver.py -a <alpha> -wf <word frequency>')
+            print('driver.py -a <alpha> -vcc <vocab count class>')
         elif opt in ('-a', '--alpha'):
             alpha = arg
-        elif opt in ('-w', '--word_freq'):
-            word_freq = arg
+        elif opt in ('-vcc', '--vocab_count_class'):
+            vocab_count_class = arg
 
-    return alpha, word_freq
+    return alpha, vocab_count_class
 
 
 if __name__ == '__main__':
-    alpha, word_freq = main(sys.argv[1:])
+    alpha, vocab_count_class = main(sys.argv[1:])
     dataset = pd.read_csv(os.path.join(
         sys.path[0], datafile), sep=',', index_col=0, header=0)
     dataset.dropna(how='any', subset=['text'], inplace=True)
@@ -43,7 +44,7 @@ if __name__ == '__main__':
 
     classes = np.unique(y_train)
 
-    nb = NaiveBayes(classes, float(alpha), int(word_freq))
+    nb = NaiveBayes(classes, float(alpha), int(vocab_count_class))
     print('----- Training In Progress with alpha = {} -----'.format(alpha))
     nb.train(x_train, y_train)
     print('----- Training Completed with {} words -----'.format(

@@ -6,7 +6,7 @@ from preprocess import data_preprocess
 
 
 class NaiveBayes:
-    def __init__(self, classes, alpha, word_freq=3):
+    def __init__(self, classes, alpha, vocab_count_class=100):
         """Constructor takes in the number of classes of the training set
 
         classes is the number of classes in the training set ie Yes/No
@@ -17,7 +17,8 @@ class NaiveBayes:
         self.bow_dicts = np.array([defaultdict(lambda:0)
                                    for index in range(self.classes.shape[0])])
         self.alpha = alpha
-        self.word_freq = word_freq
+        # self.vocab_count_class = vocab_count_class
+        self.vocab_count_class = 500  # Apparently it's not being set so hardcode
 
     def add_to_BoW(self, text, bow_number):
         """Accepts a preprocessed string that
@@ -34,11 +35,43 @@ class NaiveBayes:
             self.bow_dicts[bow_number][token] += 1
 
     def reduce_words(self):
-        print('----- Removing words with frequencies less than {} -----'.format(self.word_freq))
-        for cat_index, _ in enumerate(self.classes):
-            self.bow_dicts[cat_index] = {
-                word: count for word, count
-                in self.bow_dicts[cat_index].items() if count >= self.word_freq}
+        """Reduces the vocabulary by first calculating bs and bh values per
+        word in the dict. Then, the top vocab_count_clas words per class is 
+        retained in the dict.
+
+        vocab_count_clas is the number of words to be retained per class.
+        """
+        if len(self.classes) == 2:  # implementation for 2 classes
+            # Btw idk if this will work since I have no data to run it on. You
+            # should refactor this on your end to see fit
+            # Basically, we iterate thorough the classes, get the index of the
+            # other class, then get a (s) and b (h) values for each word in the
+            # bow, we compute for the ba (bs) and bb (bh) per word and add it
+            # to a dict that stores these
+            ba_bb_dict = {}
+            # Structure prolly looks like
+            # {viagra: {0: 10, 1: 24 }}
+            for cat_index, _ in enumerate(self.classes):
+                for word, count in self.bow_dicts[cat_index].items():
+                    ba_bb_dict[word] = {}
+                    ba_bb_dict[word]['word'] = word
+                    ba_bb_dict[word][cat_index] = count
+            ba_bb_df = pd.DataFrame(data=ba_bb_dict).transpose()
+            ba_bb_df = ba_bb_df.fillna(0)
+            ba_bb_df['ba'] = ba_bb_df[self.classes[0]] - \
+                ba_bb_df[self.classes[1]]
+            ba_bb_df['bb'] = -ba_bb_df['ba']
+            print(ba_bb_df)
+            ba_words = ba_bb_df.sort_values(
+                'ba', ascending=False).head(self.vocab_count_class)
+            bb_words = ba_bb_df.sort_values(
+                'bb', ascending=False).head(self.vocab_count_class)
+
+            print('-----Reducing Vocabulary to {}-----'.format(self.vocab_count_class))
+            for cat_index, _ in enumerate(self.classes):
+                self.bow_dicts[cat_index] = {
+                    word: count for word, count
+                    in self.bow_dicts[cat_index].items() if word in ba_words['word'] or word in bb_words['word']}
 
     def train(self, dataset, labels):
         """Accepts a dataset with the shape (l x d)
