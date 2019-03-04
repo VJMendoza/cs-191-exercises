@@ -110,4 +110,6 @@ venv.bak/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-vocab.csv
+nuclear_senti_dataset.csv
+
+ham_spam_dataset.csv
