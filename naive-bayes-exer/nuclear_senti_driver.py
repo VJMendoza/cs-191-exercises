@@ -9,7 +9,6 @@ from driver_helper import main
 
 datafile = 'nuclear_senti_dataset.csv'
 
-
 if __name__ == '__main__':
     alpha, reduce, word_freq = main(sys.argv[1:])
     dataset = pd.read_csv(os.path.join(

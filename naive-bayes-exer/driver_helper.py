@@ -15,7 +15,7 @@ def main(argv):
 
     for opt, arg in opts:
         if opt == '-h':
-            print('driver.py -a <alpha> -r <reduce(T|F)> -v <word frequency>')
+            print('driver.py -a <alpha> -r <reduce(T|F)> -v <vocab_count_class>')
             sys.exit(2)
         elif opt in ('-a', '--alpha'):
             alpha = arg

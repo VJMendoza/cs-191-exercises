@@ -18,8 +18,6 @@ class NaiveBayes:
                                    for index in range(self.classes.shape[0])])
         self.alpha = alpha
         self.reduce = reduce
-        # self.vocab_count_class = vocab_count_class
-        # Apparently it's not being set so hardcode
         self.vocab_count_class = vocab_count_class
 
     def add_to_BoW(self, text, bow_number):
@@ -44,15 +42,7 @@ class NaiveBayes:
         vocab_count_clas is the number of words to be retained per class.
         """
         if len(self.classes) == 2:  # implementation for 2 classes
-            # Btw idk if this will work since I have no data to run it on. You
-            # should refactor this on your end to see fit
-            # Basically, we iterate thorough the classes, get the index of the
-            # other class, then get a (s) and b (h) values for each word in the
-            # bow, we compute for the ba (bs) and bb (bh) per word and add it
-            # to a dict that stores these
             ba_bb_dict = {}
-            # Structure prolly looks like
-            # {viagra: {0: 10, 1: 24 }}
             for cat_index, _ in enumerate(self.classes):
                 for word, count in self.bow_dicts[cat_index].items():
                     ba_bb_dict[word] = {}
