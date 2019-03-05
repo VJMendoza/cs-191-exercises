@@ -10,30 +10,8 @@ from driver_helper import main
 # datafile = 'vocab.csv'
 datafile = 'ham_spam_dataset.csv'
 
-
-def main(argv):
-    alpha = 0
-    vocab_count_class = 0
-    try:
-        opts, _ = getopt.getopt(
-            argv, 'ha:w:', ["alpha=", "vocab_count_class="])
-    except getopt.GetoptError:
-        print('Invalid argument')
-        sys.exit(2)
-
-    for opt, arg in opts:
-        if opt == '-h':
-            print('driver.py -a <alpha> -vcc <vocab count class>')
-        elif opt in ('-a', '--alpha'):
-            alpha = arg
-        elif opt in ('-vcc', '--vocab_count_class'):
-            vocab_count_class = arg
-
-    return alpha, vocab_count_class
-
-
 if __name__ == '__main__':
-    alpha, vocab_count_class = main(sys.argv[1:])
+    alpha, reduce, vocab_count_class = main(sys.argv[1:])
     dataset = pd.read_csv(os.path.join(
         sys.path[0], datafile), sep=',', index_col=0, header=0)
     dataset.dropna(how='any', subset=['text'], inplace=True)
@@ -45,7 +23,7 @@ if __name__ == '__main__':
 
     classes = np.unique(y_train)
 
-    nb = NaiveBayes(classes, float(alpha), int(vocab_count_class))
+    nb = NaiveBayes(classes, float(alpha), reduce, int(vocab_count_class))
     print('----- Training In Progress with alpha = {} -----'.format(nb.alpha))
     nb.train(x_train, y_train)
     print('----- Training Completed with {} words -----'.format(

@@ -11,7 +11,7 @@ datafile = 'nuclear_senti_dataset.csv'
 
 
 if __name__ == '__main__':
-    alpha, word_freq = main(sys.argv[1:])
+    alpha, reduce, word_freq = main(sys.argv[1:])
     dataset = pd.read_csv(os.path.join(
         sys.path[0], datafile), sep=',', index_col=0, header=0)
     dataset.dropna(how='any', subset=['tweet_text_tokens'], inplace=True)
@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     classes = np.unique(y_train)
 
-    nb = NaiveBayes(classes, float(alpha), int(word_freq))
+    nb = NaiveBayes(classes, float(alpha), reduce, int(word_freq))
     print('----- Training In Progress with alpha = {} -----'.format(nb.alpha))
     nb.train(x_train, y_train)
     print('----- Training Completed with {} words -----'.format(

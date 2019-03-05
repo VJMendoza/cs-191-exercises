@@ -6,7 +6,7 @@ from preprocess import data_preprocess
 
 
 class NaiveBayes:
-    def __init__(self, classes, alpha, vocab_count_class=100):
+    def __init__(self, classes, alpha, reduce, vocab_count_class=100):
         """Constructor takes in the number of classes of the training set
 
         classes is the number of classes in the training set ie Yes/No
@@ -17,8 +17,10 @@ class NaiveBayes:
         self.bow_dicts = np.array([defaultdict(lambda:0)
                                    for index in range(self.classes.shape[0])])
         self.alpha = alpha
+        self.reduce = reduce
         # self.vocab_count_class = vocab_count_class
-        self.vocab_count_class = 500  # Apparently it's not being set so hardcode
+        # Apparently it's not being set so hardcode
+        self.vocab_count_class = vocab_count_class
 
     def add_to_BoW(self, text, bow_number):
         """Accepts a preprocessed string that
@@ -61,13 +63,14 @@ class NaiveBayes:
             ba_bb_df['ba'] = ba_bb_df[self.classes[0]] - \
                 ba_bb_df[self.classes[1]]
             ba_bb_df['bb'] = -ba_bb_df['ba']
-            print(ba_bb_df)
+            # print(ba_bb_df)
             ba_words = ba_bb_df.sort_values(
                 'ba', ascending=False).head(self.vocab_count_class)
             bb_words = ba_bb_df.sort_values(
                 'bb', ascending=False).head(self.vocab_count_class)
 
-            print('-----Reducing Vocabulary to {}-----'.format(self.vocab_count_class))
+            print(
+                '-----Reducing Vocabulary to {} words each-----'.format(self.vocab_count_class))
             for cat_index, _ in enumerate(self.classes):
                 self.bow_dicts[cat_index] = {
                     word: count for word, count
@@ -103,7 +106,8 @@ class NaiveBayes:
             # construct the BoW for that category
             np.apply_along_axis(self.add_to_BoW, 1, cleaned_data, cat_index)
 
-        self.reduce_words()
+        if self.reduce:
+            self.reduce_words()
         prob_classes = np.empty(self.classes.shape[0])
         all_words = []
         cat_word_counts = np.empty(self.classes.shape[0])
